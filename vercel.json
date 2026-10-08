@@ -4,6 +4,12 @@
   "buildCommand": "",
   "outputDirectory": "public",
   "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/enviar-fotos.html"
+    }
+  ],
   "functions": {
     "api/photos.js": {
       "maxDuration": 60
