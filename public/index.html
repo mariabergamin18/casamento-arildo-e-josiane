@@ -13,6 +13,7 @@
   <script src="/SplitText.min.js" defer></script>
   <script src="/fotos-entrada.js" defer></script>
   <script src="/enviar-fotos.js" defer></script>
+  <script src="/moldura.js" defer></script>
 </head>
 <body>
   <div id="photo-invitation" hidden aria-hidden="true"><svg class="lace-definitions" aria-hidden="true"><defs><pattern id="lace-pattern" width="160" height="160" patternUnits="userSpaceOnUse"><g fill="none" stroke="#fffdf8" stroke-width="2.2"><path d="M0 0H160V160H0Z M0 80Q40 0 80 0Q160 40 160 80Q120 160 80 160Q0 120 0 80Z M0 80Q40 160 80 160 M80 0Q120 0 160 80"/><circle cx="80" cy="80" r="50"/><circle cx="80" cy="80" r="56" stroke-dasharray="2 5"/><circle cx="80" cy="80" r="15"/><path d="M80 65C40 30 73 15 80 53C87 15 120 30 80 65 M95 80C130 40 145 73 107 80C145 87 130 120 95 80 M80 95C120 130 87 145 80 107C73 145 40 130 80 95 M65 80C30 120 15 87 53 80C15 73 30 40 65 80 M69 69Q36 36 47 47Q60 33 69 69 M91 69Q124 36 113 47Q127 60 91 69 M91 91Q124 124 113 113Q100 127 91 91 M69 91Q36 124 47 113Q33 100 69 91"/><path d="M0 0Q30 0 30 30Q0 30 0 0 M160 0Q130 0 130 30Q160 30 160 0 M0 160Q30 160 30 130Q0 130 0 160 M160 160Q130 160 130 130Q160 130 160 160"/></g><g fill="#fffdf8"><circle cx="80" cy="80" r="5"/><circle cx="0" cy="80" r="4"/><circle cx="80" cy="0" r="4"/></g></pattern></defs></svg><div class="lace-panel lace-top" aria-hidden="true"><svg viewBox="0 0 600 650" preserveAspectRatio="none"><path d="M0 0H600V510Q580 535 560 520Q540 550 520 540Q500 570 480 558Q460 590 440 575Q420 610 400 595Q380 630 360 610Q340 645 320 628Q300 657 280 628Q260 645 240 610Q220 630 200 595Q180 610 160 575Q140 590 120 558Q100 570 80 540Q60 550 40 520Q20 535 0 510Z" fill="url(#lace-pattern)" stroke="#fffdf8" stroke-width="5"/></svg></div><div class="lace-panel lace-bottom" aria-hidden="true"><svg viewBox="0 0 600 650" preserveAspectRatio="none"><path d="M0 0H600V510Q580 535 560 520Q540 550 520 540Q500 570 480 558Q460 590 440 575Q420 610 400 595Q380 630 360 610Q340 645 320 628Q300 657 280 628Q260 645 240 610Q220 630 200 595Q180 610 160 575Q140 590 120 558Q100 570 80 540Q60 550 40 520Q20 535 0 510Z" fill="url(#lace-pattern)" stroke="#fffdf8" stroke-width="5"/></svg></div><div class="invitation-seal"><span>A &amp; J</span></div></div>
@@ -62,6 +63,44 @@
         <noscript><p class="no-script">Ative o JavaScript no navegador para selecionar e enviar suas fotos.</p></noscript>
       </div>
     </section>
+    <section id="filtro" class="frame-section" aria-labelledby="frame-title">
+      <div class="frame-monogram" aria-hidden="true"></div>
+      <img class="frame-branches frame-branches-top" src="/ramos.png" width="166" height="284" alt="">
+      <img class="frame-branches frame-branches-bottom" src="/ramos.png" width="166" height="284" alt="">
+      <p class="frame-eyebrow">Registre seu momento</p>
+      <h2 id="frame-title">Com nosso filtro<br>personalizado</h2>
+      <div id="frame-preview" class="frame-preview">
+        <p id="frame-placeholder" class="frame-placeholder">Sua foto,<br>com nossa moldura</p>
+        <img id="frame-photo" hidden alt="Sua foto com a moldura do casamento">
+        <video id="frame-video" autoplay playsinline muted hidden aria-label="Prévia da câmera"></video>
+        <div class="frame-overlay" aria-hidden="true"></div>
+      </div>
+      <button id="frame-open" class="frame-camera" type="button" aria-label="Escolher foto ou abrir a câmera" aria-haspopup="dialog"><img src="/camera-icone.svg" width="28" height="28" alt=""></button>
+      <input id="frame-file" class="file" type="file" accept="image/*" aria-label="Escolher foto para a moldura" tabindex="-1">
+      <input id="frame-native-camera" class="file" type="file" accept="image/*" capture="environment" aria-label="Abrir câmera do celular" tabindex="-1">
+      <div id="frame-camera-controls" class="frame-controls" hidden>
+        <button id="frame-capture" class="choose primary" type="button">Fotografar</button>
+        <button id="frame-flip" class="choose secondary" type="button">Alternar câmera</button>
+        <button id="frame-cancel-camera" class="frame-text-button" type="button">Cancelar</button>
+      </div>
+      <div id="frame-edit" class="frame-edit" hidden>
+        <p>Ajuste o enquadramento da sua foto</p>
+        <label for="frame-x">Posição horizontal</label><input id="frame-x" type="range" min="0" max="100" value="50">
+        <label for="frame-y">Posição vertical</label><input id="frame-y" type="range" min="0" max="100" value="50">
+        <div class="frame-controls">
+          <button id="frame-save" class="choose primary" type="button">Salvar foto</button>
+          <button id="frame-send" class="choose secondary" type="button">Preparar envio aos noivos</button>
+        </div>
+      </div>
+      <p id="frame-status" role="status" aria-live="polite"></p>
+      <noscript><p class="no-script">Ative o JavaScript para usar a moldura.</p></noscript>
+    </section>
   </main>
+  <dialog id="frame-chooser" class="frame-chooser" aria-labelledby="frame-chooser-title">
+    <h2 id="frame-chooser-title">Sua foto com nossa moldura</h2>
+    <button id="frame-choose-photo" class="choose primary" type="button">Escolher das fotos</button>
+    <button id="frame-choose-camera" class="choose secondary" type="button">Abrir a câmera</button>
+    <button id="frame-close" class="frame-text-button" type="button">Cancelar</button>
+  </dialog>
 </body>
 </html>
