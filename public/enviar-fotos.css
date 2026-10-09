@@ -11,7 +11,7 @@ button{cursor:pointer}
 [hidden]{display:none!important}
 p,h1,h2{margin:0}
 .photo-page{max-width:603px;margin-inline:auto;container-type:inline-size}
-.photo-section{position:relative;isolation:isolate;overflow:hidden;min-height:100svh;padding-top:8.126%;padding-bottom:max(84px,15cqw);text-align:center}
+.photo-section{position:relative;isolation:isolate;overflow:hidden;min-height:100svh;padding-top:8.126%;padding-bottom:6cqw;text-align:center}
 /* The 603px Figma frame includes an 88px phone status bar, omitted here.
    Supplied decorative exports already include frame clipping/rotation. */
 .monogram-background{position:absolute;z-index:-2;top:-14.594cqw;left:0;width:100%;aspect-ratio:603/834;background:url('/monograma-champagne.svg') center/contain no-repeat;pointer-events:none}
@@ -71,7 +71,7 @@ body.invitation-closed{overflow:hidden}
 @media(prefers-reduced-motion:reduce){#photo-invitation{display:none!important}.choose{transition:none}body.invitation-closed{overflow:auto}}
 
 /* Personalized frame — Figma 14:188, 14:200, 13:143 and 14:215. */
-.frame-section{position:relative;isolation:isolate;overflow:hidden;text-align:center;padding:23.88cqw 0 7cqw;scroll-margin-top:24px}
+.frame-section{position:relative;isolation:isolate;overflow:hidden;text-align:center;padding:10cqw 0 7cqw;scroll-margin-top:24px}
 .frame-monogram{position:absolute;z-index:-2;top:5cqw;left:-10.945%;width:100%;aspect-ratio:603/834;background:url('/monograma-champagne.svg') center/contain no-repeat;pointer-events:none}
 .frame-branches{position:absolute;z-index:-1;width:27.529%;height:auto;pointer-events:none}
 .frame-branches-top{right:2.156%;top:3.648cqw}
@@ -99,6 +99,6 @@ body.invitation-closed{overflow:hidden}
 .frame-chooser::backdrop{background:#20251bcc}
 .frame-chooser h2{font-size:25px;margin-bottom:24px}
 .frame-chooser .choose{justify-content:center;font-size:15px;margin-bottom:12px}
-@media(max-width:480px){#frame-title{font-size:28px;line-height:27px}.frame-eyebrow{font-size:14px}.frame-section{padding-top:18cqw;padding-bottom:40px}}
+@media(max-width:480px){#frame-title{font-size:28px;line-height:27px}.frame-eyebrow{font-size:14px}.frame-section{padding-top:8cqw;padding-bottom:40px}}
 
 .frame-placeholder{position:absolute;inset:0;display:grid;align-content:center;color:#f4f0e7;font:italic 24px/1.35 "Times New Roman",serif;padding:28px}
