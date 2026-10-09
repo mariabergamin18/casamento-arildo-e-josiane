@@ -88,7 +88,8 @@
     updateButtons();
   }
 
-  find('frame-open').onclick = () => chooser.showModal();
+  find('frame-open').removeAttribute('aria-haspopup');
+  find('frame-open').onclick = () => find('frame-file').click();
   find('frame-close').onclick = () => chooser.close();
   find('frame-choose-photo').onclick = () => {
     chooser.close();
