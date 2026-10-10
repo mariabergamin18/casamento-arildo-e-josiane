@@ -79,29 +79,11 @@ body.invitation-closed{overflow:hidden}
 .frame-eyebrow{font:400 16px/20px Mulish,sans-serif}
 #frame-title{font:700 italic 32px/29px 'Times New Roman',serif;letter-spacing:-.64px;margin-top:12px}
 .frame-preview{position:relative;isolation:isolate;overflow:hidden;width:clamp(220px,54.56cqw,329px);aspect-ratio:329/585;margin:24px auto 0;border-radius:20px;background:#667052}
-#frame-photo,#frame-video{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 50%}
-#frame-video.mirrored{transform:scaleX(-1)}
-.frame-overlay{position:absolute;inset:0;pointer-events:none;background:url('/moldura.svg') center/contain no-repeat}
 .frame-camera{display:flex;align-items:center;justify-content:center;margin:32px auto 0;padding:12px 24px;min-width:76px;min-height:52px;border:1.131px solid #4d574080;border-radius:13.568px;background:var(--ink);cursor:pointer}
 .frame-camera:hover{background:var(--deep)}
 .frame-camera img{filter:invert(1);display:block}
-.frame-edit,.frame-controls,#frame-status{max-width:329px;width:calc(100% - 40px);margin:20px auto 0}
-.frame-edit>p{font-size:14px;margin-bottom:16px}
-.frame-edit>label{display:block;text-align:left;font-size:13px;margin-top:12px}
-.frame-edit>input{display:block;width:100%;min-height:44px;accent-color:var(--deep)}
-.frame-edit .frame-controls{width:100%}
-.frame-controls{display:grid;gap:10px}
-.frame-controls .choose{justify-content:center;font-size:14px}
-.frame-text-button{background:transparent;border:0;color:var(--deep);text-decoration:underline;min-height:44px;padding:10px 14px;font-size:14px}
-#frame-status{font-size:14px;line-height:1.5}
-#frame-status:empty{display:none}
-.frame-chooser{width:calc(100% - 40px);max-width:360px;padding:28px 24px;border:1px solid #4d574040;border-radius:20px;background:var(--paper);color:var(--ink);text-align:center}
-.frame-chooser::backdrop{background:#20251bcc}
-.frame-chooser h2{font-size:25px;margin-bottom:24px}
-.frame-chooser .choose{justify-content:center;font-size:15px;margin-bottom:12px}
+.instagram-status{margin:14px auto 0;font-size:14px;color:var(--deep)}
+.frame-camera:disabled{cursor:default;opacity:.65}
 @media(max-width:480px){#frame-title{font-size:28px;line-height:27px}.frame-eyebrow{font-size:14px}.frame-section{padding-top:8cqw;padding-bottom:40px}}
 
-.frame-placeholder{position:absolute;inset:0;display:grid;align-content:center;color:#f4f0e7;font:italic 24px/1.35 "Times New Roman",serif;padding:28px}
-
-.frame-sample{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
-.frame-preview:has(.frame-sample:not([hidden])) .frame-overlay{display:none}
+.frame-sample{display:block;width:100%;height:auto;object-fit:contain}

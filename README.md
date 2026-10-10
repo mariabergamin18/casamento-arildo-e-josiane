@@ -1,11 +1,11 @@
 # Arildo & Josiane — Nossas memórias
 
-Site do casamento com convite, câmera com moldura e envio privado de fotos para o Google Drive.
+Site do casamento com convite, prévia do casal, acesso ao story do Instagram e envio privado de fotos para o Google Drive.
 
 ## Páginas
 
-- `/`: site completo, convite e moldura de fotos.
-- `/enviar-fotos`: página exclusiva de envio de fotos, para o QR Code das mesas.
+- `/`: página de envio de fotos e prévia do casal.
+- `/enviar-fotos`: a mesma página, para o QR Code das mesas.
 - `/api/photos`: função de servidor que entrega as fotos ao Google Apps Script.
 
 ## Publicar na Vercel
@@ -34,3 +34,7 @@ Para uma instalação nova, substitua o marcador da pasta, execute `configurarAl
 - Fotos recebidas ficam no Drive privado; não há galeria pública.
 
 As chaves e URLs de integração são configuradas no servidor. Este repositório não contém credenciais.
+
+## Story do Instagram
+
+Preencha `INSTAGRAM_STORY_URL` em `public/instagram-story.js` com o link HTTPS do story. Até lá, o botão de câmera da segunda seção fica desativado com a indicação “Em breve no Instagram”. A câmera e o editor de moldura dedicados foram removidos. `index.html` e `enviar-fotos.html` mantêm o mesmo conteúdo e a foto do casal é exibida sem depender de JavaScript.
