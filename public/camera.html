@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#10120f"><title>Sua foto — Arildo e Josiane</title><link rel="stylesheet" href="/enviar-fotos.css"><link rel="stylesheet" href="/camera.css"><script src="/camera.js" defer></script></head>
+<body class="story-camera">
+<main class="camera-page">
+<a class="camera-back" href="/#filtro" aria-label="Voltar para a página de fotos">×</a>
+<div id="frame-preview" class="frame-preview">
+<p id="frame-placeholder" class="frame-placeholder">Preparando a câmera…</p>
+<img id="frame-photo" hidden alt="Sua foto com a moldura">
+<video id="frame-video" autoplay playsinline muted hidden aria-label="Prévia da câmera"></video>
+<div class="frame-overlay" aria-hidden="true"></div>
+</div>
+<div class="camera-toolbar">
+<button id="frame-open" class="frame-text-button" type="button">Abrir câmera</button>
+<button id="frame-gallery" class="frame-text-button" type="button" onclick="document.getElementById('frame-file').click()">Galeria</button>
+<div id="frame-camera-controls" class="frame-controls" hidden>
+<button id="frame-capture" class="shutter" aria-label="Fotografar" type="button"></button>
+<button id="frame-flip" class="flip" aria-label="Alternar câmera" type="button">↻</button>
+<button id="frame-cancel-camera" type="button" hidden>Cancelar</button>
+</div>
+</div>
+<div id="frame-edit" class="frame-edit" hidden>
+<div class="position-controls"><label for="frame-x">Horizontal</label><input id="frame-x" type="range" min="0" max="100" value="50"><label for="frame-y">Vertical</label><input id="frame-y" type="range" min="0" max="100" value="50"></div>
+<div class="frame-controls"><button id="frame-save" class="choose primary" type="button">Salvar foto</button><button id="frame-send" class="choose secondary" type="button">Enviar aos noivos</button></div>
+</div>
+<p id="frame-status" role="status" aria-live="polite"></p>
+<input id="frame-file" class="file" type="file" accept="image/*" aria-label="Escolher foto">
+<input id="frame-native-camera" class="file" type="file" accept="image/*" capture="environment" aria-label="Câmera do celular">
+<dialog id="frame-chooser"><button id="frame-close">Fechar</button><button id="frame-choose-photo">Galeria</button><button id="frame-choose-camera">Câmera</button></dialog>
+</main></body></html>
