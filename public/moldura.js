@@ -139,9 +139,7 @@
     }
   }
   find('frame-choose-camera').onclick = () => {
-    chooser.close();
-    if (!navigator.mediaDevices?.getUserMedia) find('frame-native-camera').click();
-    else startCamera();
+    window.location.href = '/camera';
   };
   find('frame-flip').onclick = () => {
     facing = facing === 'environment' ? 'user' : 'environment';
