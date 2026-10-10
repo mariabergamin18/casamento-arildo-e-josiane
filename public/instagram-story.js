@@ -1,6 +1,6 @@
 (() => {
-  // Cole aqui o link do story do Instagram quando estiver disponível.
-  const INSTAGRAM_STORY_URL = '';
+  // Story do Instagram para o botão da moldura.
+  const INSTAGRAM_STORY_URL = 'https://www.instagram.com/stories/bergamin.dd/4005135749935984405?utm_source=ig_story_item_share&exln=YmZmb294bDU3MWEy';
   const button = document.getElementById('frame-open');
   const status = document.getElementById('instagram-status');
   if (!button || !status || !INSTAGRAM_STORY_URL) return;
