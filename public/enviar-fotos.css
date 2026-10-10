@@ -102,7 +102,3 @@ body.invitation-closed{overflow:hidden}
 @media(max-width:480px){#frame-title{font-size:28px;line-height:27px}.frame-eyebrow{font-size:14px}.frame-section{padding-top:8cqw;padding-bottom:40px}}
 
 .frame-placeholder{position:absolute;inset:0;display:grid;align-content:center;color:#f4f0e7;font:italic 24px/1.35 "Times New Roman",serif;padding:28px}
-
-/* Supplied preview includes its own frame; show the overlay only for selected photos. */
-.frame-sample{display:block;position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
-.frame-preview:has(.frame-sample:not([hidden])) .frame-overlay{display:none}
