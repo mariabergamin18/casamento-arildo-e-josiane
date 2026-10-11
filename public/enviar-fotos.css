@@ -87,3 +87,9 @@ body.invitation-closed{overflow:hidden}
 @media(max-width:480px){#frame-title{font-size:28px;line-height:27px}.frame-eyebrow{font-size:14px}.frame-section{padding-top:8cqw;padding-bottom:40px}}
 
 .frame-sample{display:block;width:100%;height:auto;object-fit:contain}
+
+/* Keep the send action above the selected photo previews. */
+.selection{display:flex;flex-direction:column}
+.selection #count{order:0}
+.selection .send{order:1;margin-bottom:14px;scroll-margin-block:24px}
+.selection .photos{order:2;margin-bottom:0}
