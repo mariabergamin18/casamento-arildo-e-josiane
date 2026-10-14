@@ -11,10 +11,11 @@ export default { async fetch(request) {
       const data = await response.json();
       if (data.ok !== true || !Array.isArray(data.photos)) throw Error('Álbum inválido');
       data.photos = data.photos.filter(photo => /^\/api\/album\/(?:photo|drive)\/[\w-]{10,100}$/.test(photo.url || ''));
-      return new Response(request.method === 'HEAD' ? null : JSON.stringify(data), {headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
+      return new Response(request.method === 'HEAD' ? null : JSON.stringify(data), {headers:{'Content-Type':'application/json','Cache-Control':'public, max-age=0, s-maxage=30, stale-while-revalidate=60'}});
     }
-    return new Response(request.method === 'HEAD' ? null : response.body, {headers:{'Content-Type':response.headers.get('Content-Type') || 'image/jpeg','Cache-Control':'public, max-age=3600','X-Content-Type-Options':'nosniff'}});
+    return new Response(request.method === 'HEAD' ? null : response.body, {headers:{'Content-Type':response.headers.get('Content-Type') || 'image/jpeg','Cache-Control':'public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800','X-Content-Type-Options':'nosniff'}});
   } catch {
     return new Response(JSON.stringify({ok:false,error:'Não foi possível carregar as fotos agora.'}), {status:502,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}});
   }
 }};
+
