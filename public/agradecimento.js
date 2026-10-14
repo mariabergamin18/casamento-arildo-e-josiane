@@ -87,7 +87,7 @@ function show(index) {
 }
 function applyPhotos(data) {
   if (data.ok !== true || !Array.isArray(data.photos)) throw Error(data.error || 'Não foi possível abrir o álbum.');
-  const next = data.photos.filter(photo => typeof photo.id === 'string' && /^\/api\/album\/(?:photo|drive)\/[\w-]{10,100}$/.test(photo.url || ''));
+  const next = data.photos.filter(photo => typeof photo.id === 'string' && /^\/album-originals\/[\w-]+\.(?:jpg|png|heif|heic|webp)$/.test(photo.url || ''));
   for (const photo of next) {
     if (/^\/album-previews\/[a-f0-9]{20}\.jpg$/.test(photo.previewUrl || '')) previews.set(photo.id, photo.previewUrl);
   }
@@ -241,14 +241,14 @@ document.addEventListener('visibilitychange', () => { if (document.hidden) clear
 reducedMotion.addEventListener('change', start);
 async function init() {
   try {
-    const initial = $('#album-initial-data');
-    if (initial) applyPhotos(JSON.parse(initial.textContent));
-    else {
-      const response = await fetch('/album-index.json');
-      if (response.ok) applyPhotos(await response.json());
-    }
-  } catch { /* Live Drive album remains available. */ }
-  loadPhotos();
+    // Static, immutable album: no Drive or wedding API calls during page usage.
+    const response = await fetch('/album-index.json', {cache:'force-cache'});
+    if (!response.ok) throw Error('Não foi possível carregar o álbum.');
+    applyPhotos(await response.json());
+  } catch (error) {
+    album.innerHTML = '<div class="slide active"><div class="placeholder">O álbum está temporariamente indisponível.</div></div>';
+    status.textContent = error.message;
+    download.disabled = true;
+  }
 }
 init();
-setInterval(() => { if (!document.hidden) loadPhotos(); }, 30000);
