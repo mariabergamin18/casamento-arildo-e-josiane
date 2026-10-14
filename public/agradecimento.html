@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f4f0e7">
+  <meta name="description" content="Uma carta de agradecimento para Arildo e Josiane, com as memórias compartilhadas pelos convidados.">
+  <title>Um agradecimento — Arildo & Josiane</title>
+  <link rel="stylesheet" href="/agradecimento.css">
+</head>
+<body>
+  <main class="prototype" aria-labelledby="title">
+    <div class="canvas">
+      <img class="background-monogram" src="/assets/background_monogram.png" alt="" aria-hidden="true">
+      <div class="olive olive-top" aria-hidden="true"><div class="olive-crop"><img src="/assets/olive.png" alt=""></div></div>
+      <div class="olive olive-bottom" aria-hidden="true"><div class="olive-crop"><img src="/assets/olive.png" alt=""></div></div>
+      <img class="gold-monogram" src="/assets/gold_monogram.png" alt="" aria-hidden="true">
+
+      <h1 id="title">Um agradecimento</h1>
+      <div class="letter-copy">
+        <p>Arildo e Josi, obrigada por confiarem em meu trabalho com tanto carinho</p>
+        <p>Que a união de vocês continue tão grande quanto sua fé</p>
+      </div>
+      <p class="intro">Aqui estão alguns momentos dessa noite que seus convidados gostariam de compartilhar com vocês</p>
+
+      <section class="album" aria-label="Fotos compartilhadas pelos convidados">
+        <div class="carousel" id="carousel" aria-live="off">
+          <div class="slide active"><div class="placeholder">Carregando as memórias...</div></div>
+        </div>
+      </section>
+
+      <button id="download-all" class="download" type="button" disabled>
+        <img src="/assets/download.svg" width="23" height="23" alt="" aria-hidden="true">
+        <span>Salvar tudo</span>
+      </button>
+      <p class="closing">Com carinho, pra guardar pra sempre.</p>
+      <p class="status" id="album-status" role="status" aria-live="polite"></p>
+      <a class="single-download" id="download-current" href="#" download="arildo-josi-foto.jpg" hidden>Salvar esta foto</a>
+    </div>
+  </main>
+  <script src="/agradecimento.js"></script>
+</body>
+</html>

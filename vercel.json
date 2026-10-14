@@ -8,10 +8,17 @@
     {
       "source": "/",
       "destination": "/enviar-fotos.html"
+    },
+    {
+      "source": "/api/album/:path*",
+      "destination": "/api/album?albumPath=:path*"
     }
   ],
   "functions": {
     "api/photos.js": {
+      "maxDuration": 60
+    },
+    "api/album.js": {
       "maxDuration": 60
     }
   },
