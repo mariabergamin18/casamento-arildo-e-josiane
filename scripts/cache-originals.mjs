@@ -6,7 +6,21 @@ const base='https://arildo-e-josiane.vercel.app';
 const root='public';
 const album=JSON.parse(await readFile(join(root,'album-index.json'),'utf8'));
 if(!album.ok || !Array.isArray(album.photos) || album.photos.length===0) throw Error('Missing album index');
-const photos=album.photos;
+const liveResponse=await fetch(base+'/api/album',{signal:AbortSignal.timeout(60000),headers:{Accept:'application/json'}});
+if(!liveResponse.ok) throw Error('Cannot verify the complete live Drive album: HTTP '+liveResponse.status);
+const live=await liveResponse.json();
+if(live.ok!==true || !Array.isArray(live.photos)) throw Error('Live Drive image list unavailable');
+const all=new Map();
+for(const photo of album.photos){
+ if(/^drive-[\w-]{10,100}$/.test(photo.id)) all.set(photo.id,photo);
+}
+for(const photo of live.photos){
+ if(!/^drive-[\w-]{10,100}$/.test(photo.id) || !/^\/api\/album\/drive\/[\w-]{10,100}$/.test(photo.url||'')) continue;
+ all.set(photo.id,{...all.get(photo.id),...photo,previewUrl:all.get(photo.id)?.previewUrl});
+}
+if(live.photos.length<album.photos.length) throw Error('Live Drive list is smaller than the current snapshot; refusing incomplete build');
+const photos=[...all.values()];
+console.log('Including '+photos.length+' photos from Drive, including manually added files.');
 const outputs=new Array(photos.length);
 const folder=join(root,'album-originals');
 await mkdir(folder,{recursive:true});
