@@ -30,8 +30,13 @@ h1{position:absolute;z-index:1;top:19.237cqw;left:50%;transform:translateX(-50%)
 .slide.active{opacity:1}
 .slide img{display:block;width:100%;height:100%;object-fit:cover}
 .placeholder{display:grid;place-items:center;width:100%;height:100%;padding:5cqw;color:var(--deep);font-size:2.2cqw;text-align:center}
-.download{display:flex;align-items:center;justify-content:center;gap:2.653cqw;min-height:7.592cqw;margin-top:18px;padding:1.99cqw 2.653cqw;border:0;border-radius:1.99cqw;background:var(--deep);color:#fff;font:600 3.176cqw/1 Mulish,sans-serif;white-space:nowrap;cursor:pointer}
-.download img{display:block;flex:none;width:3.814cqw;height:3.814cqw}
+.download{display:flex;align-items:center;justify-content:center;gap:12px;min-width:clamp(180px,35cqw,230px);min-height:clamp(52px,10cqw,64px);margin-top:20px;padding:14px 24px;border:0;border-radius:12px;background:var(--deep);color:#fff;font:600 clamp(16px,3.6cqw,21px)/1.2 Mulish,sans-serif;white-space:nowrap;cursor:pointer}
+.download-icon{position:relative;display:block;flex:none;width:clamp(24px,4.5cqw,29px);height:clamp(24px,4.5cqw,29px)}
+.download-icon img{display:block;width:100%;height:100%}
+.download-spinner{position:absolute;inset:0;display:none;border:3px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:download-spin .8s linear infinite}
+.download.is-loading .download-icon img{visibility:hidden}
+.download.is-loading .download-spinner{display:block}
+@keyframes download-spin{to{transform:rotate(360deg)}}
 .download:hover:not(:disabled){background:#3f4934}
 .download:disabled{cursor:wait;opacity:.78}
 .closing{width:90cqw;margin:16px 0 0;color:rgba(63,64,59,.8);font:italic 400 16px/22px Mulish,sans-serif;text-align:center}
@@ -40,3 +45,4 @@ h1{position:absolute;z-index:1;top:19.237cqw;left:50%;transform:translateX(-50%)
 .single-download{margin-top:8px;font-size:14px;color:var(--deep);text-underline-offset:3px}
 .single-download[hidden]{display:none}
 @media(prefers-reduced-motion:reduce){.slide{transition:none}}
+
