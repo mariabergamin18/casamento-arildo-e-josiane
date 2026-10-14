@@ -13,6 +13,8 @@ let photos = [], current = 0, timer, generation = 0, signature = null;
 let preparedFiles = null, preparing = false, loading = false, imageLoading = false;
 let preparation = null, shareRequested = false, sharing = false;
 const fileCache = new Map();
+// Balance faster album preparation against Safari's memory and connection limits.
+const maxParallelDownloads = navigator.connection?.saveData ? 3 : 6;
 
 function setDownloadLoading(active) {
   download.classList.toggle('is-loading', active);
@@ -190,7 +192,7 @@ function prepareAll() {
           }
           let response;
           for (let attempt = 0; attempt < 2; attempt++) {
-            response = await fetch(photo.url, {signal:AbortSignal.timeout(65000)});
+            response = await fetch(photo.url, {signal:AbortSignal.timeout(45000),cache:'force-cache'});
             if (response.ok) break;
           }
           if (!response.ok) throw Error('Foto indisponível');
@@ -200,7 +202,7 @@ function prepareAll() {
           files[index] = new File([blob], name, {type:mime});
         }
       }
-      await Promise.all(Array.from({length:Math.min(3,selection.length)}, worker));
+      await Promise.all(Array.from({length:Math.min(maxParallelDownloads,selection.length)}, worker));
       if (expectedSignature !== signature) return;
       if (!navigator.canShare({files})) throw Error('Compartilhamento indisponível');
       preparedFiles = files;
