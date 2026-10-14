@@ -30,9 +30,9 @@
         </div>
       </section>
 
-      <button id="download-all" class="download" type="button" disabled>
-        <img src="/assets/download.svg" width="23" height="23" alt="" aria-hidden="true">
-        <span>Salvar tudo</span>
+      <button id="download-all" class="download" type="button" aria-label="Salvar todas as fotos" aria-busy="false">
+        <span class="download-icon" aria-hidden="true"><img src="/assets/download.svg" width="23" height="23" alt=""><span class="download-spinner"></span></span>
+        <span class="download-label">Salvar tudo</span>
       </button>
       <p class="closing">Com carinho, pra guardar pra sempre.</p>
       <p class="status" id="album-status" role="status" aria-live="polite"></p>
