@@ -6,13 +6,12 @@ const downloadLabel = download.querySelector('span');
 const single = $('#download-current');
 const extension = mime => ({'image/png':'png','image/webp':'webp','image/gif':'gif','image/avif':'avif','image/heic':'heic','image/heif':'heif'})[mime] || 'jpg';
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
-const previews = new Map();
 const preloaded = new Map();
 const failed = new Set();
 let photos = [], current = 0, timer, generation = 0, signature = null;
 let preparedFiles = null, preparing = false, loading = false, imageLoading = false;
 
-function displayUrl(photo) { return previews.get(photo.id) || photo.url; }
+function displayUrl(photo) { return photo.url; }
 function start() {
   clearTimeout(timer);
   if (photos.length > 1 && !reducedMotion.matches && !document.hidden && !preparing && !imageLoading) {
@@ -61,12 +60,6 @@ function show(index) {
   };
   image.onerror = () => {
     if (request !== generation) return;
-    // A missing preview must not prevent the original photo from displaying.
-    if (previews.has(photo.id)) {
-      previews.delete(photo.id);
-      image.src = photo.url;
-      return;
-    }
     imageLoading = false;
     failed.add(photo.id);
     if (failed.size < photos.length) timer = setTimeout(() => show(target + 1), 600);
@@ -78,9 +71,6 @@ function show(index) {
 function applyPhotos(data) {
   if (data.ok !== true || !Array.isArray(data.photos)) throw Error(data.error || 'Não foi possível abrir o álbum.');
   const next = data.photos.filter(photo => typeof photo.id === 'string' && /^\/api\/album\/(?:photo|drive)\/[\w-]{10,100}$/.test(photo.url || ''));
-  for (const photo of next) {
-    if (/^\/album-previews\/[a-f0-9]{20}\.jpg$/.test(photo.previewUrl || '')) previews.set(photo.id, photo.previewUrl);
-  }
   const nextSignature = next.map(photo => `${photo.id}:${photo.url}`).join(',');
   if (nextSignature === signature) return;
   const oldId = photos[current]?.id;
@@ -196,16 +186,5 @@ album.addEventListener('touchend', event => {
 }, {passive:true});
 document.addEventListener('visibilitychange', () => { if (document.hidden) clearTimeout(timer); else start(); });
 reducedMotion.addEventListener('change', start);
-async function init() {
-  try {
-    const initial = $('#album-initial-data');
-    if (initial) applyPhotos(JSON.parse(initial.textContent));
-    else {
-      const response = await fetch('/album-index.json');
-      if (response.ok) applyPhotos(await response.json());
-    }
-  } catch { /* The live API is the fallback if the fast initial index is unavailable. */ }
-  loadPhotos();
-}
-init();
+loadPhotos();
 setInterval(() => { if (!document.hidden) loadPhotos(); }, 30000);
