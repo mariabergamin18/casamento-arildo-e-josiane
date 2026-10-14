@@ -20,10 +20,10 @@ button:focus-visible,a:focus-visible{outline:2px solid #a88a50;outline-offset:4p
 .olive-bottom{left:-13.433cqw;top:147.761cqw;width:45.434cqw;height:46.373cqw}
 .olive-bottom .olive-crop{transform:scaleY(-1) rotate(-42.37deg)}
 h1{position:absolute;z-index:1;top:19.237cqw;left:50%;transform:translateX(-50%);margin:0;white-space:nowrap;font:400 11.277cqw/1.25 Edwardian,cursive;color:var(--deep);text-align:center}
-.letter-copy{position:relative;width:80cqw;font-size:16px;line-height:22px;text-transform:uppercase;text-align:center}
+.letter-copy{position:relative;width:82cqw;font-size:14px;line-height:20px;text-transform:uppercase;text-align:center}
 .letter-copy p{margin:0}
 .letter-copy p+p{margin-top:12px}
-.intro{width:90cqw;margin:20px 0 0;font-size:20px;font-weight:600;line-height:26px;text-align:center}
+.intro{width:88cqw;margin:20px 0 0;font-size:17px;font-weight:600;line-height:23px;text-align:center}
 .album{width:89.386cqw;aspect-ratio:539/674;margin-top:52px}
 .carousel{width:100%;height:100%;position:relative;overflow:hidden;background:#d9d9d9}
 .slide{position:absolute;inset:0;opacity:0;transition:opacity .5s ease}

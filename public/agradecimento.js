@@ -6,12 +6,15 @@ const downloadLabel = download.querySelector('.download-label');
 const single = $('#download-current');
 const extension = mime => ({'image/png':'png','image/webp':'webp','image/gif':'gif','image/avif':'avif','image/heic':'heic','image/heif':'heif'})[mime] || 'jpg';
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+const previews = new Map();
 const preloaded = new Map();
 const failed = new Set();
 let photos = [], current = 0, timer, generation = 0, signature = null;
 let preparedFiles = null, preparing = false, loading = false, imageLoading = false;
 let preparation = null, shareRequested = false, sharing = false;
 const fileCache = new Map();
+// Balance faster album preparation against Safari's memory and connection limits.
+const maxParallelDownloads = navigator.connection?.saveData ? 3 : 6;
 
 function setDownloadLoading(active) {
   download.classList.toggle('is-loading', active);
@@ -20,7 +23,7 @@ function setDownloadLoading(active) {
 }
 
 
-function displayUrl(photo) { return photo.url; }
+function displayUrl(photo) { return previews.get(photo.id) || photo.url; }
 function start() {
   clearTimeout(timer);
   if (photos.length > 1 && !reducedMotion.matches && !document.hidden && !imageLoading) {
@@ -69,6 +72,11 @@ function show(index) {
   };
   image.onerror = () => {
     if (request !== generation) return;
+    if (previews.has(photo.id)) {
+      previews.delete(photo.id);
+      image.src = photo.url;
+      return;
+    }
     imageLoading = false;
     failed.add(photo.id);
     if (failed.size < photos.length) timer = setTimeout(() => show(target + 1), 600);
@@ -79,7 +87,10 @@ function show(index) {
 }
 function applyPhotos(data) {
   if (data.ok !== true || !Array.isArray(data.photos)) throw Error(data.error || 'Não foi possível abrir o álbum.');
-  const next = data.photos.filter(photo => typeof photo.id === 'string' && /^\/api\/album\/(?:photo|drive)\/[\w-]{10,100}$/.test(photo.url || ''));
+  const next = data.photos.filter(photo => typeof photo.id === 'string' && /^\/album-originals\/[\w-]+\.(?:jpg|png|heif|heic|webp)$/.test(photo.url || ''));
+  for (const photo of next) {
+    if (/^\/album-previews\/[a-f0-9]{20}\.jpg$/.test(photo.previewUrl || '')) previews.set(photo.id, photo.previewUrl);
+  }
   const nextSignature = next.map(photo => `${photo.id}:${photo.url}`).join(',');
   if (nextSignature === signature) return;
   const oldId = photos[current]?.id;
@@ -134,6 +145,7 @@ async function loadPhotos() {
 function openSaveOptions() {
   if (!preparedFiles || sharing) return;
   sharing = true;
+  status.textContent = '';
   shareRequested = false;
   setDownloadLoading(false);
   download.disabled = true;
@@ -142,10 +154,17 @@ function openSaveOptions() {
     // Invoke synchronously for a tap when files are already ready.
     action = navigator.share({files:preparedFiles,title:'Memórias de Arildo e Josi'});
   } catch (error) { action = Promise.reject(error); }
-  Promise.resolve(action).catch(error => {
-    // Long network waits can outlive the browser's permitted user activation.
-    // Keep the same ready button; never force a separate preparation step.
-    if (error.name === 'AbortError' || error.name === 'NotAllowedError') return;
+  Promise.resolve(action).then(() => {
+    // iOS does not expose whether the user actually chose "Save Images".
+    // Encourage checking the gallery without falsely claiming a confirmed save.
+    status.textContent = 'Confira as fotos na galeria do celular ✨';
+  }).catch(error => {
+    if (error.name === 'AbortError') return;
+    if (error.name === 'NotAllowedError') {
+      status.textContent = 'Para salvar, toque em “Salvar imagens” nas opções do iPhone.';
+      return;
+    }
+    status.textContent = 'Não foi possível concluir o compartilhamento. Tente novamente.';
     single.hidden = false;
   }).finally(() => { sharing = false; download.disabled = !photos.length; });
 }
@@ -181,7 +200,7 @@ function prepareAll() {
           }
           let response;
           for (let attempt = 0; attempt < 2; attempt++) {
-            response = await fetch(photo.url, {signal:AbortSignal.timeout(65000)});
+            response = await fetch(photo.url, {signal:AbortSignal.timeout(45000),cache:'force-cache'});
             if (response.ok) break;
           }
           if (!response.ok) throw Error('Foto indisponível');
@@ -191,7 +210,7 @@ function prepareAll() {
           files[index] = new File([blob], name, {type:mime});
         }
       }
-      await Promise.all(Array.from({length:Math.min(3,selection.length)}, worker));
+      await Promise.all(Array.from({length:Math.min(maxParallelDownloads,selection.length)}, worker));
       if (expectedSignature !== signature) return;
       if (!navigator.canShare({files})) throw Error('Compartilhamento indisponível');
       preparedFiles = files;
@@ -228,5 +247,16 @@ album.addEventListener('touchend', event => {
 }, {passive:true});
 document.addEventListener('visibilitychange', () => { if (document.hidden) clearTimeout(timer); else start(); });
 reducedMotion.addEventListener('change', start);
-loadPhotos();
-setInterval(() => { if (!document.hidden) loadPhotos(); }, 30000);
+async function init() {
+  try {
+    // Static, immutable album: no Drive or wedding API calls during page usage.
+    const response = await fetch('/album-index.json', {cache:'force-cache'});
+    if (!response.ok) throw Error('Não foi possível carregar o álbum.');
+    applyPhotos(await response.json());
+  } catch (error) {
+    album.innerHTML = '<div class="slide active"><div class="placeholder">O álbum está temporariamente indisponível.</div></div>';
+    status.textContent = error.message;
+    download.disabled = true;
+  }
+}
+init();
