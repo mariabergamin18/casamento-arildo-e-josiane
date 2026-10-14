@@ -2,7 +2,7 @@ const $ = selector => document.querySelector(selector);
 const album = $('#carousel');
 const status = $('#album-status');
 const download = $('#download-all');
-const downloadLabel = download.querySelector('span');
+const downloadLabel = download.querySelector('.download-label');
 const single = $('#download-current');
 const extension = mime => ({'image/png':'png','image/webp':'webp','image/gif':'gif','image/avif':'avif','image/heic':'heic','image/heif':'heif'})[mime] || 'jpg';
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
@@ -11,16 +11,25 @@ const preloaded = new Map();
 const failed = new Set();
 let photos = [], current = 0, timer, generation = 0, signature = null;
 let preparedFiles = null, preparing = false, loading = false, imageLoading = false;
+let preparation = null, shareRequested = false, sharing = false;
+const fileCache = new Map();
+
+function setDownloadLoading(active) {
+  download.classList.toggle('is-loading', active);
+  download.setAttribute('aria-busy', String(active));
+  download.setAttribute('aria-label', active ? 'Preparando fotos para salvar' : 'Salvar todas as fotos');
+}
+
 
 function displayUrl(photo) { return previews.get(photo.id) || photo.url; }
 function start() {
   clearTimeout(timer);
-  if (photos.length > 1 && !reducedMotion.matches && !document.hidden && !preparing && !imageLoading) {
+  if (photos.length > 1 && !reducedMotion.matches && !document.hidden && !imageLoading) {
     timer = setTimeout(() => show(current + 1), 2000);
   }
 }
 function preloadNext() {
-  if (photos.length < 2 || preparing || navigator.connection?.saveData) return;
+  if (photos.length < 2 || navigator.connection?.saveData) return;
   const url = displayUrl(photos[(current + 1) % photos.length]);
   if (!preloaded.has(url)) {
     const image = new Image();
@@ -61,7 +70,6 @@ function show(index) {
   };
   image.onerror = () => {
     if (request !== generation) return;
-    // A missing preview must not prevent the original photo from displaying.
     if (previews.has(photo.id)) {
       previews.delete(photo.id);
       image.src = photo.url;
@@ -90,6 +98,7 @@ function applyPhotos(data) {
   failed.clear();
   downloadLabel.textContent = 'Salvar tudo';
   download.disabled = !photos.length;
+  if (!photos.length) setDownloadLoading(false);
   single.hidden = true;
   if (!photos.length) {
     generation++;
@@ -105,6 +114,9 @@ function applyPhotos(data) {
     preloadNext();
     start();
   } else show(Math.max(0, retained));
+  const ids = new Set(photos.map(photo => photo.id));
+  for (const id of fileCache.keys()) if (!ids.has(id)) fileCache.delete(id);
+  prepareAll();
 }
 async function loadPhotos() {
   if (preparing || loading) return;
@@ -120,71 +132,100 @@ async function loadPhotos() {
     // An unavailable refresh does not interrupt a loaded album.
     if (!photos.length) {
       album.innerHTML = '<div class="slide active"><div class="placeholder">O álbum está temporariamente indisponível.</div></div>';
+      shareRequested = false;
+      setDownloadLoading(false);
+      download.disabled = false;
       status.textContent = error.message;
       status.dataset.refreshError = 'true';
     }
   } finally { loading = false; }
 }
-async function prepareAll() {
-  if (!navigator.share || !navigator.canShare) {
-    status.textContent = 'Para salvar todas as fotos de uma vez, abra esta página no navegador do celular. Aqui você pode salvar a foto exibida.';
+function openSaveOptions() {
+  if (!preparedFiles || sharing) return;
+  sharing = true;
+  shareRequested = false;
+  setDownloadLoading(false);
+  download.disabled = true;
+  let action;
+  try {
+    // Invoke synchronously for a tap when files are already ready.
+    action = navigator.share({files:preparedFiles,title:'Memórias de Arildo e Josi'});
+  } catch (error) { action = Promise.reject(error); }
+  Promise.resolve(action).catch(error => {
+    // Long network waits can outlive the browser's permitted user activation.
+    // Keep the same ready button; never force a separate preparation step.
+    if (error.name === 'AbortError' || error.name === 'NotAllowedError') return;
     single.hidden = false;
-    return;
+  }).finally(() => { sharing = false; download.disabled = !photos.length; });
+}
+function prepareAll() {
+  if (preparation) return preparation;
+  if (!photos.length) return Promise.resolve();
+  if (!navigator.share || !navigator.canShare) {
+    shareRequested = false;
+    setDownloadLoading(false);
+    single.hidden = false;
+    return Promise.resolve();
+  }
+  if (preparedFiles) {
+    if (shareRequested) openSaveOptions();
+    return Promise.resolve();
   }
   preparing = true;
-  clearTimeout(timer);
-  download.disabled = true;
-  downloadLabel.textContent = 'Preparando…';
-  download.setAttribute('aria-label', 'Preparando fotos para salvar');
   const selection = photos.slice();
+  const expectedSignature = signature;
   const files = new Array(selection.length);
-  let cursor = 0, completed = 0;
-  let cancelled = false;
-  try {
-    async function worker() {
-      while (!cancelled && cursor < selection.length) {
-        const index = cursor++;
-        let response;
-        for (let attempt = 0; attempt < 2; attempt++) {
-          response = await fetch(selection[index].url, {signal:AbortSignal.timeout(65000)});
-          if (response.ok) break;
+  let cursor = 0, cancelled = false;
+  preparation = (async () => {
+    try {
+      async function worker() {
+        while (!cancelled && cursor < selection.length) {
+          const index = cursor++;
+          const photo = selection[index];
+          const name = `arildo-josi-${String(index + 1).padStart(3, '0')}.${extension(photo.mime)}`;
+          const cached = fileCache.get(photo.id);
+          if (cached && cached.url === photo.url) {
+            files[index] = new File([cached.blob], name, {type:cached.blob.type || photo.mime});
+            continue;
+          }
+          let response;
+          for (let attempt = 0; attempt < 2; attempt++) {
+            response = await fetch(photo.url, {signal:AbortSignal.timeout(65000)});
+            if (response.ok) break;
+          }
+          if (!response.ok) throw Error('Foto indisponível');
+          const blob = await response.blob();
+          const mime = blob.type || photo.mime || 'image/jpeg';
+          fileCache.set(photo.id, {url:photo.url,blob});
+          files[index] = new File([blob], name, {type:mime});
         }
-        if (!response.ok) throw Error('Não foi possível preparar todas as fotos.');
-        const blob = await response.blob();
-        const mime = blob.type || selection[index].mime || 'image/jpeg';
-        files[index] = new File([blob], `arildo-josi-${String(index + 1).padStart(3, '0')}.${extension(mime)}`, {type:mime});
-        completed++;
-        if (!cancelled) status.textContent = `Preparando fotos: ${completed} de ${selection.length}`;
       }
+      await Promise.all(Array.from({length:Math.min(3,selection.length)}, worker));
+      if (expectedSignature !== signature) return;
+      if (!navigator.canShare({files})) throw Error('Compartilhamento indisponível');
+      preparedFiles = files;
+      if (shareRequested) openSaveOptions();
+    } catch {
+      cancelled = true;
+      shareRequested = false;
+      preparedFiles = null;
+      setDownloadLoading(false);
+      single.hidden = false;
+    } finally {
+      preparing = false;
+      preparation = null;
+      if (!sharing) download.disabled = !photos.length;
     }
-    await Promise.all(Array.from({length:Math.min(2,selection.length)}, worker));
-    if (!navigator.canShare({files})) throw Error('Este celular não aceita compartilhar todas as fotos de uma vez.');
-    preparedFiles = files;
-    downloadLabel.textContent = 'Salvar tudo';
-    download.setAttribute('aria-label', 'Salvar todas as fotos na galeria');
-    // Sharing needs a fresh user tap on iOS after asynchronous preparation.
-    status.textContent = 'Fotos prontas! Toque em “Salvar tudo” para abrir as opções do celular.';
-  } catch (error) {
-    cancelled = true;
-    preparedFiles = null;
-    downloadLabel.textContent = 'Tentar novamente';
-    status.textContent = `${error.message} Você pode salvar a foto exibida pelo link abaixo.`;
-    single.hidden = false;
-  } finally {
-    preparing = false;
-    download.disabled = !photos.length;
-    start();
-  }
+  })();
+  return preparation;
 }
 download.addEventListener('click', () => {
-  if (preparing || !photos.length) return;
-  if (!preparedFiles) { prepareAll(); return; }
-  status.textContent = '';
-  navigator.share({files:preparedFiles,title:'Memórias de Arildo e Josi'}).catch(error => {
-    if (error.name === 'AbortError') return;
-    status.textContent = 'Não foi possível abrir a galeria neste navegador. Você pode salvar a foto exibida pelo link abaixo.';
-    single.hidden = false;
-  });
+  if (sharing) return;
+  if (preparedFiles) { openSaveOptions(); return; }
+  shareRequested = true;
+  setDownloadLoading(true);
+  if (photos.length) prepareAll();
+  else loadPhotos();
 });
 let touchX = null;
 album.addEventListener('touchstart', event => { touchX = event.changedTouches[0]?.clientX ?? null; }, {passive:true});
@@ -204,7 +245,7 @@ async function init() {
       const response = await fetch('/album-index.json');
       if (response.ok) applyPhotos(await response.json());
     }
-  } catch { /* The live API is the fallback if the fast initial index is unavailable. */ }
+  } catch { /* Live Drive album remains available. */ }
   loadPhotos();
 }
 init();
