@@ -145,6 +145,7 @@ async function loadPhotos() {
 function openSaveOptions() {
   if (!preparedFiles || sharing) return;
   sharing = true;
+  status.textContent = '';
   shareRequested = false;
   setDownloadLoading(false);
   download.disabled = true;
@@ -153,10 +154,17 @@ function openSaveOptions() {
     // Invoke synchronously for a tap when files are already ready.
     action = navigator.share({files:preparedFiles,title:'Memórias de Arildo e Josi'});
   } catch (error) { action = Promise.reject(error); }
-  Promise.resolve(action).catch(error => {
-    // Long network waits can outlive the browser's permitted user activation.
-    // Keep the same ready button; never force a separate preparation step.
-    if (error.name === 'AbortError' || error.name === 'NotAllowedError') return;
+  Promise.resolve(action).then(() => {
+    // iOS does not expose whether the user actually chose "Save Images".
+    // Encourage checking the gallery without falsely claiming a confirmed save.
+    status.textContent = 'Confira as fotos na galeria do celular ✨';
+  }).catch(error => {
+    if (error.name === 'AbortError') return;
+    if (error.name === 'NotAllowedError') {
+      status.textContent = 'Para salvar, toque em “Salvar imagens” nas opções do iPhone.';
+      return;
+    }
+    status.textContent = 'Não foi possível concluir o compartilhamento. Tente novamente.';
     single.hidden = false;
   }).finally(() => { sharing = false; download.disabled = !photos.length; });
 }
